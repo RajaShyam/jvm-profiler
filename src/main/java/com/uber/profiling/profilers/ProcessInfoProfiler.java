@@ -69,6 +69,7 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
         map.put("host", getHostName());
         map.put("processUuid", getProcessUuid());
         map.put("appId", getAppId());
+        map.put("appName", SparkUtils.getSparkAppName());
 
         if (getTag() != null) {
             map.put("tag", getTag());

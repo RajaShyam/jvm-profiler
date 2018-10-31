@@ -18,7 +18,10 @@ package com.uber.profiling.util;
 
 import com.uber.profiling.profilers.Constants;
 
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SparkUtils {
     // Try to get application ID by match regex in class path or system property
@@ -46,9 +49,11 @@ public class SparkUtils {
         return appId;
     }
     
-    // Get application ID by invoking SparkEnv
-    public static String getSparkEnvAppId() {
-        // Do not use "org.apache.spark.SparkEnv" directly because the maven shade plugin will convert 
+    /*
+     * retrieve sparkConfObject
+     */
+    private static Object getSparkConfObject(){
+    	// Do not use "org.apache.spark.SparkEnv" directly because the maven shade plugin will convert 
         // the class name to ja_shaded.org.apache.spark.SparkEnv due to relocation.
         String className = org.apache.commons.lang3.StringUtils.joinWith(
                 ".", 
@@ -57,18 +62,60 @@ public class SparkUtils {
                 "spark",
                 "SparkEnv");
         try {
-            Object result = ReflectionUtils.executeStaticMethods(
+            Object sparkConfObj = ReflectionUtils.executeStaticMethods(
                     className, 
-                    "get.conf.getSparkEnvAppId");
-            if (result == null) {
-                return null;
-            }
-            return result.toString();
-        } catch (Throwable e) {
+                    "get.conf");
+            return sparkConfObj;
+        }
+        catch (Throwable e) {
             return null;
         }
+        
     }
-
+    
+    private static String getSparkProperties(String sparkProperty){
+    	Object sparkConfObj = getSparkConfObject();
+    	String propertyValue = new String();
+    	if(sparkConfObj != null)
+    	{
+    		for (Field field : sparkConfObj.getClass().getDeclaredFields()) {
+    			field.setAccessible(true);
+    			Object value;
+    			try {
+    				value = field.get(sparkConfObj);
+    				if (value != null) {
+    					@SuppressWarnings("unchecked")
+    					Map<String, String> setting_map = (ConcurrentHashMap<String, String>) value;
+    					propertyValue = setting_map.get(sparkProperty);
+    				}
+    			} catch (IllegalArgumentException e) {
+    				return null;
+    			} catch (IllegalAccessException e) {
+    				return null;
+    			}
+    		}
+    	}
+		return propertyValue;
+    }
+    
+    /*
+     * Get application Name by invoking sparkConf
+     */
+	public static String getSparkAppName() {
+		
+		return getSparkProperties("spark.app.name");
+		
+	}
+	
+	/*
+	 * Get applicationId from sparkConf
+	 */
+	public static String getSparkEnvAppId(){
+		
+		return getSparkProperties("spark.app.id");
+    	
+    }
+    
     public static String probeRole(String cmdline) {
         if (ProcessUtils.isSparkExecutor(cmdline)) {
             return Constants.EXECUTOR_ROLE;

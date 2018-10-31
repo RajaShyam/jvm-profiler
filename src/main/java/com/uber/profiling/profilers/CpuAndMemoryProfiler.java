@@ -20,6 +20,7 @@ import com.uber.profiling.Profiler;
 import com.uber.profiling.Reporter;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ProcFileUtils;
+import com.uber.profiling.util.SparkUtils;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -179,6 +180,7 @@ public class CpuAndMemoryProfiler extends ProcessInfoBase implements Profiler {
         map.put("host", getHostName());
         map.put("processUuid", getProcessUuid());
         map.put("appId", getAppId());
+        map.put("appName", SparkUtils.getSparkAppName());
 
         if (getTag() != null) {
             map.put("tag", getTag());

@@ -21,6 +21,7 @@ import com.uber.profiling.Reporter;
 import com.uber.profiling.reporters.ConsoleOutputReporter;
 import com.uber.profiling.util.ClassAndMethodMetricKey;
 import com.uber.profiling.util.ClassMethodArgumentMetricBuffer;
+import com.uber.profiling.util.SparkUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class MethodArgumentProfiler extends ProcessInfoBase implements Profiler 
             commonMap.put("host", getHostName());
             commonMap.put("processUuid", getProcessUuid());
             commonMap.put("appId", getAppId());
-
+            commonMap.put("appName", SparkUtils.getSparkAppName());
             commonMap.put("className", entry.getKey().getClassName());
             commonMap.put("methodName", entry.getKey().getMethodName());
 

@@ -20,6 +20,7 @@ import com.uber.profiling.Profiler;
 import com.uber.profiling.Reporter;
 import com.uber.profiling.reporters.ConsoleOutputReporter;
 import com.uber.profiling.util.ClassAndMethod;
+import com.uber.profiling.util.SparkUtils;
 import com.uber.profiling.util.Stacktrace;
 import com.uber.profiling.util.StacktraceMetricBuffer;
 
@@ -85,6 +86,7 @@ public class StacktraceReporterProfiler extends ProcessInfoBase implements Profi
             map.put("name", getProcessName());
             map.put("processUuid", getProcessUuid());
             map.put("appId", getAppId());
+            map.put("appName", SparkUtils.getSparkAppName());
 
             if (getTag() != null) {
                 map.put("tag", getTag());

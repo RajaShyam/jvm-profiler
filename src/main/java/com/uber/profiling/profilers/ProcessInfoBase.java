@@ -114,4 +114,5 @@ public class ProcessInfoBase {
         role = SparkUtils.probeRole(cmdline);
         return role;
     }
+
 }

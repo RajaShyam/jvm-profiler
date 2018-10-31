@@ -22,6 +22,7 @@ import com.uber.profiling.reporters.ConsoleOutputReporter;
 import com.uber.profiling.util.ClassAndMethodLongMetricBuffer;
 import com.uber.profiling.util.ClassAndMethodMetricKey;
 import com.uber.profiling.util.Histogram;
+import com.uber.profiling.util.SparkUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,6 +76,7 @@ public class MethodDurationProfiler extends ProcessInfoBase implements Profiler 
             commonMap.put("host", getHostName());
             commonMap.put("processUuid", getProcessUuid());
             commonMap.put("appId", getAppId());
+            commonMap.put("appName", SparkUtils.getSparkAppName());
 
             commonMap.put("className", entry.getKey().getClassName());
             commonMap.put("methodName", entry.getKey().getMethodName());
