@@ -32,6 +32,7 @@ public class ProcessInfoBase {
 
     private String jobId = null;
     private String appId = null;
+    private String appName = null;
 
     private String role = null;
     
@@ -92,13 +93,26 @@ public class ProcessInfoBase {
         if (appId != null && !appId.isEmpty()) {
             return appId;
         }
-        
+
         appId = SparkUtils.getSparkEnvAppId();
         return appId;
     }
 
+    public String getAppName() {
+        if (appName != null && !appName.isEmpty()) {
+            return appName;
+        }
+
+        appName = SparkUtils.getSparkAppName();
+        return appName;
+    }
+
     public void setAppId(String appId) {
         this.appId = appId;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
     public void setRole(String role) {

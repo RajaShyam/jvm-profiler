@@ -20,18 +20,21 @@ import com.uber.profiling.Arguments;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class SparkUtilsTest {
     @Test
     public void probeAppId() {
         Assert.assertNull(SparkUtils.probeAppId(Arguments.ARG_APP_ID_REGEX));
         Assert.assertEquals("jar", SparkUtils.probeAppId("jar"));
     }
-    
+
     @Test
-    public void getAppId() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void getAppId() {
         Assert.assertNull(SparkUtils.getSparkEnvAppId());
+    }
+
+    @Test
+    public void getAppName() {
+        Assert.assertNull(SparkUtils.getSparkAppName());
     }
 
     @Test
