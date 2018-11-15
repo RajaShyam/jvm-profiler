@@ -83,7 +83,7 @@ public class AgentImpl {
         }
 
         if (appName == null || appName.isEmpty()) {
-            appName = SparkUtils.probeAppId(arguments.getAppIdRegex());
+            appName = SparkUtils.probeAppName(arguments.getAppNameRegex());
         }
 
         if (!arguments.getDurationProfiling().isEmpty()

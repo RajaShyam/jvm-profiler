@@ -34,6 +34,7 @@ import java.util.Map;
 
 public class Arguments {
     public final static String DEFAULT_APP_ID_REGEX = "application_[\\w_]+";
+    public final static String DEFAULT_NAME_ID_REGEX = "application_name_[\\w_]+";
     public final static long DEFAULT_METRIC_INTERVAL = 60000;
     public final static long DEFAULT_SAMPLE_INTERVAL = 100;
 
@@ -74,6 +75,7 @@ public class Arguments {
     private String appIdVariable;
     private String appNameVariable;
     private String appIdRegex = DEFAULT_APP_ID_REGEX;
+    private String appNameRegex = DEFAULT_APP_ID_REGEX;
     private long metricInterval = DEFAULT_METRIC_INTERVAL;
     private long sampleInterval = 0L;
     private String tag;
@@ -385,8 +387,16 @@ public class Arguments {
         this.appIdVariable = appIdVariable;
     }
 
+    public void setAppNameVariable(String appNameVariable) {
+        this.appNameVariable = appNameVariable;
+    }
+
     public String getAppIdRegex() {
         return appIdRegex;
+    }
+
+    public String getAppNameRegex() {
+        return appNameRegex;
     }
 
     public List<ClassAndMethod> getDurationProfiling() {

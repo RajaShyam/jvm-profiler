@@ -25,27 +25,35 @@ import java.util.List;
 public class SparkUtils {
     // Try to get application ID by match regex in class path or system property
     public static String probeAppId(String appIdRegex) {
-        String appId = System.getProperty("spark.app.id");
+        return probeConfig(appIdRegex, "spark.app.id");
+    }
 
-        if (appId == null || appId.isEmpty()) {
+    public static String probeAppName(String appIdRegex) {
+        return probeConfig(appIdRegex, "spark.app.name");
+    }
+
+    private static String probeConfig(String appIdRegex, String key) {
+        String value = System.getProperty(key);
+
+        if (value == null || value.isEmpty()) {
             String classPath = ProcessUtils.getJvmClassPath();
             List<String> appIdCandidates = StringUtils.extractByRegex(classPath, appIdRegex);
             if (!appIdCandidates.isEmpty()) {
-                appId = appIdCandidates.get(0);
+                value = appIdCandidates.get(0);
             }
         }
 
-        if (appId == null || appId.isEmpty()) {
+        if (value == null || value.isEmpty()) {
             for (String entry : ProcessUtils.getJvmInputArguments()) {
                 List<String> appIdCandidates = StringUtils.extractByRegex(entry, appIdRegex);
                 if (!appIdCandidates.isEmpty()) {
-                    appId = appIdCandidates.get(0);
+                    value = appIdCandidates.get(0);
                     break;
                 }
             }
         }
 
-        return appId;
+        return value;
     }
 
     /**
