@@ -82,10 +82,6 @@ public class AgentImpl {
             appName = System.getenv(appNameVariable);
         }
 
-        if (appName == null || appName.isEmpty()) {
-            appName = SparkUtils.probeAppName(arguments.getAppNameRegex());
-        }
-
         if (!arguments.getDurationProfiling().isEmpty()
                 || !arguments.getArgumentProfiling().isEmpty()) {
             instrumentation.addTransformer(new JavaAgentFileTransformer(arguments.getDurationProfiling(), arguments.getArgumentProfiling()));
