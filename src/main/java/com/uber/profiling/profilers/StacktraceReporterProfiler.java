@@ -85,9 +85,15 @@ public class StacktraceReporterProfiler extends ProcessInfoBase implements Profi
             map.put("host", getHostName());
             map.put("name", getProcessName());
             map.put("processUuid", getProcessUuid());
-            map.put("appId", getAppId());
-            map.put("appName", SparkUtils.getSparkAppName());
 
+            if(null != getAppId()) {
+                map.put("appId", getAppId());
+            }
+
+            if(null != getAppName()) {
+                map.put("appName", getAppName());
+            }
+            
             if (getTag() != null) {
                 map.put("tag", getTag());
             }

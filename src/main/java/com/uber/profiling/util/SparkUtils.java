@@ -18,41 +18,50 @@ package com.uber.profiling.util;
 
 import com.uber.profiling.profilers.Constants;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class SparkUtils {
     // Try to get application ID by match regex in class path or system property
     public static String probeAppId(String appIdRegex) {
-        String appId = System.getProperty("spark.app.id");
+        return probeConfig(appIdRegex, "spark.app.id");
+    }
 
-        if (appId == null || appId.isEmpty()) {
+    public static String probeAppName(String appIdRegex) {
+        return probeConfig(appIdRegex, "spark.app.name");
+    }
+
+    private static String probeConfig(String appIdRegex, String key) {
+        String value = System.getProperty(key);
+
+        if (value == null || value.isEmpty()) {
             String classPath = ProcessUtils.getJvmClassPath();
             List<String> appIdCandidates = StringUtils.extractByRegex(classPath, appIdRegex);
             if (!appIdCandidates.isEmpty()) {
-                appId = appIdCandidates.get(0);
+                value = appIdCandidates.get(0);
             }
         }
 
-        if (appId == null || appId.isEmpty()) {
+        if (value == null || value.isEmpty()) {
             for (String entry : ProcessUtils.getJvmInputArguments()) {
                 List<String> appIdCandidates = StringUtils.extractByRegex(entry, appIdRegex);
                 if (!appIdCandidates.isEmpty()) {
-                    appId = appIdCandidates.get(0);
+                    value = appIdCandidates.get(0);
                     break;
                 }
             }
         }
 
-        return appId;
+        return value;
     }
-    
-    /*
-     * retrieve sparkConfObject
+
+    /**
+     * Retrieve sparkConfObject (of type org.apache.spark.SparkConf)
+     * @return The configuration object of the spark environment, if present.
+     * @throws ReflectiveOperationException
      */
-    private static Object getSparkConfObject(){
+    private static Object getSparkConfObject() throws ReflectiveOperationException {
     	// Do not use "org.apache.spark.SparkEnv" directly because the maven shade plugin will convert 
         // the class name to ja_shaded.org.apache.spark.SparkEnv due to relocation.
         String className = org.apache.commons.lang3.StringUtils.joinWith(
@@ -61,59 +70,40 @@ public class SparkUtils {
                 "apache",
                 "spark",
                 "SparkEnv");
-        try {
-            Object sparkConfObj = ReflectionUtils.executeStaticMethods(
-                    className, 
-                    "get.conf");
-            return sparkConfObj;
-        }
-        catch (Throwable e) {
-            return null;
-        }
-        
+        return ReflectionUtils.executeStaticMethods(
+                className,
+                "get.conf");
+
     }
     
-    private static String getSparkProperties(String sparkProperty){
+    private static String getSparkProperty(String name) throws ReflectiveOperationException {
     	Object sparkConfObj = getSparkConfObject();
-    	String propertyValue = new String();
-    	if(sparkConfObj != null)
-    	{
-    		for (Field field : sparkConfObj.getClass().getDeclaredFields()) {
-    			field.setAccessible(true);
-    			Object value;
-    			try {
-    				value = field.get(sparkConfObj);
-    				if (value != null) {
-    					@SuppressWarnings("unchecked")
-    					Map<String, String> setting_map = (ConcurrentHashMap<String, String>) value;
-    					propertyValue = setting_map.get(sparkProperty);
-    				}
-    			} catch (IllegalArgumentException e) {
-    				return null;
-    			} catch (IllegalAccessException e) {
-    				return null;
-    			}
-    		}
-    	}
-		return propertyValue;
+    	if(null == sparkConfObj) return null;
+        Method method = sparkConfObj.getClass().getMethod("get", String.class);
+        if(null == method) return null;
+        return (String) method.invoke(sparkConfObj, name);
     }
     
     /*
      * Get application Name by invoking sparkConf
      */
 	public static String getSparkAppName() {
-		
-		return getSparkProperties("spark.app.name");
-		
-	}
+        try {
+            return getSparkProperty("spark.app.name");
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
+    }
 	
 	/*
 	 * Get applicationId from sparkConf
 	 */
 	public static String getSparkEnvAppId(){
-		
-		return getSparkProperties("spark.app.id");
-    	
+        try {
+            return getSparkProperty("spark.app.id");
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
     }
     
     public static String probeRole(String cmdline) {

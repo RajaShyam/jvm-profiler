@@ -75,11 +75,16 @@ public class MethodDurationProfiler extends ProcessInfoBase implements Profiler 
             commonMap.put("processName", getProcessName());
             commonMap.put("host", getHostName());
             commonMap.put("processUuid", getProcessUuid());
-            commonMap.put("appId", getAppId());
-            commonMap.put("appName", SparkUtils.getSparkAppName());
-
             commonMap.put("className", entry.getKey().getClassName());
             commonMap.put("methodName", entry.getKey().getMethodName());
+
+            if(null != getAppId()) {
+                commonMap.put("appId", getAppId());
+            }
+
+            if(null != getAppName()) {
+                commonMap.put("appName", getAppName());
+            }
 
             if (getTag() != null) {
                 commonMap.put("tag", getTag());
